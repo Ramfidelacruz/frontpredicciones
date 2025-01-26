@@ -3,7 +3,8 @@ import { useAuthStore } from '@/stores/authStore'
 
 import LoginView from '@/views/LoginView.vue'
 import DashboardView from '@/views/DashboardView.vue'
-import RegisterView from '@/views/RegisterView.vue' 
+import RegisterView from '@/views/RegisterView.vue'
+import PredictionsView from '@/views/PredictionsView.vue' // Importa PredictionsView
 
 const routes = [
   {
@@ -17,6 +18,12 @@ const routes = [
     name: 'Dashboard',
     component: DashboardView,
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/predictions', // Nueva ruta para PredictionsView
+    name: 'Predictions',
+    component: PredictionsView,
+    meta: { requiresAuth: true } // Puedes ajustar esto según tus necesidades
   },
   {
     path: '/',

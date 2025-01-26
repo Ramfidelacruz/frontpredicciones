@@ -1,95 +1,182 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
 import axios from 'axios'
+import PredictionModal from '@/components/PredictionModal.vue'
 
 const authStore = useAuthStore()
 const teams = ref([])
-const userPredictions = ref([])
 const upcomingMatches = ref([])
+const selectedMatch = ref(null)
+const showPredictionModal = ref(false)
+const selectedHomeTeam = ref(null)
+const selectedAwayTeam = ref(null)
+const prediction = ref(null)
 
 onMounted(async () => {
   try {
-    // Cargar rankings de equipos
     const teamsResponse = await axios.get('http://localhost:8000/teams/')
-    teams.value = teamsResponse.data.slice(0, 10)  // Top 10 equipos
+    console.log('Teams:', teamsResponse.data)
+    teams.value = teamsResponse.data
 
-    // Cargar partidos próximos
     const matchesResponse = await axios.get('http://localhost:8000/matches/upcoming')
-    upcomingMatches.value = matchesResponse.data.slice(0, 5)  // Próximos 5 partidos
-
-    // TODO: Cargar predicciones del usuario
+    console.log('Matches:', matchesResponse.data)
+    upcomingMatches.value = matchesResponse.data
   } catch (error) {
-    console.error('Error cargando datos:', error)
+    console.error('Error:', error)
   }
 })
 
-const createPrediction = async (match) => {
-  // Lógica para crear predicción
+const createPrediction = (match) => {
+  selectedMatch.value = match
+  showPredictionModal.value = true
 }
+
+const handlePredictionSaved = (prediction) => {
+  console.log('Predicción guardada:', prediction)
+  // Aquí puedes actualizar la lista de predicciones si es necesario
+}
+
+const sortedTeams = computed(() => {
+  return teams.value.slice().sort((a, b) => b.points - a.points); // Ordenar de mayor a menor
+});
+
+const getPrediction = async () => {
+  if (selectedHomeTeam.value && selectedAwayTeam.value) {
+    try {
+      const response = await axios.get(`http://localhost:8000/predict/${selectedHomeTeam.value}/${selectedAwayTeam.value}`);
+      prediction.value = response.data; // Asegúrate de que esto esté correcto
+      console.log('Predicción:', prediction.value); // Agrega un log para verificar la respuesta
+    } catch (error) {
+      console.error('Error en predicción:', error);
+    }
+  }
+}
+
 </script>
 
+
 <template>
-  <div class="dashboard container mx-auto p-4">
-    <h1 class="text-2xl font-bold mb-4">Dashboard de Predicciones</h1>
-    
-    <!-- Sección de Rankings -->
-    <div class="rankings mb-6">
-      <h2 class="text-xl font-semibold mb-2">Top Equipos</h2>
-      <table class="w-full border-collapse">
-        <thead>
-          <tr class="bg-gray-200">
-            <th class="p-2 border">Posición</th>
-            <th class="p-2 border">Equipo</th>
-            <th class="p-2 border">Puntos</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(team, index) in teams" :key="team.id">
-            <td class="p-2 border">{{ index + 1 }}</td>
-            <td class="p-2 border">{{ team.name }}</td>
-            <td class="p-2 border">{{ team.points || 0 }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  <div class="min-h-screen bg-gray-100 p-8">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">Dashboard de Predicciones</h1>
+        <button 
+          @click="authStore.logout()"
+          class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition"
+        >
+          Cerrar Sesión
+        </button>
+      </div>
 
-    <!-- Sección de Partidos Próximos -->
-    <div class="upcoming-matches mb-6">
-      <h2 class="text-xl font-semibold mb-2">Próximos Partidos</h2>
-      <table class="w-full border-collapse">
-        <thead>
-          <tr class="bg-gray-200">
-            <th class="p-2 border">Fecha</th>
-            <th class="p-2 border">Local</th>
-            <th class="p-2 border">Visitante</th>
-            <th class="p-2 border">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="match in upcomingMatches" :key="match.id">
-            <td class="p-2 border">{{ match.date }}</td>
-            <td class="p-2 border">{{ match.home_team }}</td>
-            <td class="p-2 border">{{ match.away_team }}</td>
-            <td class="p-2 border">
-              <button 
-                @click="createPrediction(match)"
-                class="bg-blue-500 text-white px-2 py-1 rounded"
-              >
-                Predecir
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+      <!-- Predicción Personalizada -->
+      <div class="bg-white shadow-lg rounded-lg p-6 mb-8">
+        <h2 class="text-xl font-semibold mb-4 text-gray-700">Predicción Personalizada</h2>
+        <div class="flex space-x-4">
+          <select 
+            v-model="selectedHomeTeam" 
+            class="flex-1 p-2 border rounded"
+          >
+            <option value="">Selecciona Equipo Local</option>
+            <option 
+  v-for="team in teams" 
+  :key="team.id"
+  :value="team.name.name"
+>{{ team.name.name }}</option>
+          </select>
+          
+          <select 
+            v-model="selectedAwayTeam" 
+            class="flex-1 p-2 border rounded"
+          >
+            <option value="">Selecciona Equipo Visitante</option>
+            <option 
+  v-for="team in teams" 
+  :key="team.id"
+  :value="team.name.name"
+>{{ team.name.name }}</option>
+          </select>
+          
+          <button 
+ @click="getPrediction"
+ class="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-lg disabled:bg-gray-400 disabled:cursor-not-allowed font-semibold transition-colors duration-200"
+ :disabled="!selectedHomeTeam || !selectedAwayTeam"
+>
+ Predecir
+</button>
+        </div>
 
-    <!-- Botón de Logout -->
-    <button 
-      @click="authStore.logout()"
-      class="bg-red-500 text-white px-4 py-2 rounded"
-    >
-      Cerrar Sesión
-    </button>
+        <div v-if="prediction" class="mt-4 p-4 bg-gray-50 rounded-lg border">
+          <h3 class="font-semibold text-lg mb-2">Resultado de la Predicción</h3>
+          <p class="text-gray-700">
+    Probabilidad de victoria local: <span class="font-bold">{{ prediction.probabilidad_victoria_local }}%</span>
+  </p>
+  <p class="text-gray-700">
+    Probabilidad de victoria visitante: <span class="font-bold">{{ prediction.probabilidad_victoria_visitante }}%</span>
+  </p>
+  <p class="text-gray-700">
+    Resultado predicho: <span class="font-bold">{{ prediction.resultado_predicho }}</span>
+  </p>
+          
+          
+        </div>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-8">
+        <!-- Top 10 Equipos -->
+        <div class="bg-white shadow-lg rounded-lg p-6">
+          <h2 class="text-xl font-semibold mb-4 text-gray-700">Top 10 Equipos</h2>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="bg-gray-50">
+                  <th class="p-3 text-left font-semibold text-gray-600">Pos</th>
+                  <th class="p-3 text-left font-semibold text-gray-600">Equipo</th>
+                  <th class="p-3 text-right font-semibold text-gray-600">Puntos</th>
+                </tr>
+              </thead>
+              <tbody>
+  <tr 
+    v-for="(team, index) in teams.slice(0, 10)" 
+    :key="index" 
+    class="border-b hover:bg-gray-50 transition"
+  >
+    <td class="p-3">{{ index + 1 }}</td>
+    <td class="p-3">{{ team.name.name }}</td>
+    <td class="p-3 text-right">{{ team.name.points }}</td>
+  </tr>
+</tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Próximos Partidos -->
+        <div class="bg-white shadow-lg rounded-lg p-6">
+          <h2 class="text-xl font-semibold mb-4 text-gray-700">Próximos Partidos</h2>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="bg-gray-50">
+                  <th class="p-3 text-left font-semibold text-gray-600">Fecha</th>
+                  <th class="p-3 text-left font-semibold text-gray-600">Local</th>
+                  <th class="p-3 text-left font-semibold text-gray-600">Visitante</th>
+                </tr>
+              </thead>
+              <tbody>
+  <tr 
+    v-for="(match, index) in upcomingMatches" 
+    :key="index" 
+    class="border-b hover:bg-gray-50 transition"
+  >
+    <td class="p-3">{{ new Date(match.date).toLocaleDateString() }}</td>
+    <td class="p-3">{{ match.homeTeam?.name || '-' }}</td>
+    <td class="p-3">{{ match.awayTeam?.name || '-' }}</td>
+  </tr>
+</tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
