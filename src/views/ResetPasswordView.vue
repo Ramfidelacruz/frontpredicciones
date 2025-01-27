@@ -21,7 +21,7 @@ const handleReset = async () => {
     })
 
     if (response.ok) {
-      router.push('/login')
+      router.push('/login/')
     } else {
       throw new Error('Error al restablecer la contraseña')
     }

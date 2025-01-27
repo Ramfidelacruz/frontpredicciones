@@ -11,7 +11,7 @@ const router = useRouter()
 const handleRegister = async () => {
   try {
     await authService.register(email.value, password.value)
-    router.push('/login')
+    router.push('/login/')
   } catch (err) {
     error.value = 'Registro fallido'
     console.error(err)

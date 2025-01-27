@@ -5,7 +5,7 @@ const API_URL = 'https://predictions-production.up.railway.app'
 export default {
   async login(email, password) {
     try {
-      const response = await axios.post(`${API_URL}/token`, { email, password })
+      const response = await axios.post(`${API_URL}/token/`, { email, password })
       const { access_token } = response.data
       
       localStorage.setItem('token', access_token)
