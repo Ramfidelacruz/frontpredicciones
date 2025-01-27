@@ -20,7 +20,7 @@ const handleLogin = async () => {
     const data = await authStore.login(email.value, password.value);
 
     // Redireccionar al dashboard o página principal
-    await router.push('/dashboard');
+    await router.push('/dashboard/');
 
   } catch (e) {
     console.log("Error en el inicio de sesión:", e);
