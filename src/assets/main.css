@@ -1,35 +1,94 @@
-@import './base.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Estilos base */
+body {
+  @apply bg-gray-900;
+}
 
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  font-weight: normal;
+  @apply w-full min-h-screen p-4;
 }
 
+.bg-gray-100 {
+  --tw-bg-opacity: 1;
+  background-color: #1a1f2e !important;
+}
+
+.text-gray-800 {
+  --tw-text-opacity: 1;
+  color: white !important;
+}
+
+/* Enlaces y clase .green */
 a,
 .green {
-  text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
+  @apply no-underline text-emerald-500 transition-colors duration-300 p-1;
 }
 
+/* Estilos para el dashboard */
+.dashboard-container {
+  @apply bg-white/5 backdrop-blur-sm rounded-xl shadow-xl p-6;
+}
+
+.dashboard-header {
+  @apply flex justify-between items-center mb-6;
+}
+
+.dashboard-title {
+  @apply text-2xl font-bold text-gray-200;
+}
+
+.logout-button {
+  @apply px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors duration-200;
+}
+
+/* Estilos para las tablas */
+.custom-table {
+  @apply w-full;
+}
+
+.custom-table th {
+  @apply text-left text-gray-300 font-medium p-3 border-b border-gray-700;
+}
+
+.custom-table td {
+  @apply text-gray-200 p-3 border-b border-gray-700/50;
+}
+
+/* Estilos para los inputs y selects */
+.custom-input,
+.custom-select {
+  @apply w-full p-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-200 
+         focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200;
+}
+
+/* Efectos hover */
 @media (hover: hover) {
   a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
+    @apply bg-emerald-500/20;
   }
 }
 
+/* Media queries */
 @media (min-width: 1024px) {
   body {
-    display: flex;
-    place-items: center;
+    @apply min-h-screen;
   }
 
   #app {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 0 2rem;
+    @apply w-full p-4;
   }
+}
+
+/* Cards para las secciones */
+.content-card {
+  @apply bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-xl p-6;
+}
+
+/* Botón de predicción */
+.predict-button {
+  @apply w-full py-2 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg 
+         font-medium shadow-lg hover:shadow-emerald-500/20 transition-all duration-200;
 }

@@ -1,39 +1,38 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/authStore'; // Asegúrate de que esto esté importado
 
 const router = useRouter()
-const authStore = useAuthStore(); // Asegúrate de que authStore esté definido
 const email = ref('')
-const password = ref('')
+const newPassword = ref('')
 const error = ref('')
-const loading = ref(false)
 
-const handleLogin = async () => {
-  console.log("Intentando iniciar sesión...");
+const handleReset = async () => {
   try {
-    loading.value = true;
-    error.value = '';
+    const response = await fetch('http://localhost:8000/reset-password/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: email.value,
+        new_password: newPassword.value
+      })
+    })
 
-    // Llama al método login de authStore
-    const data = await authStore.login(email.value, password.value);
-
-    // Redireccionar al dashboard o página principal
-    await router.push('/dashboard');
-
+    if (response.ok) {
+      router.push('/login')
+    } else {
+      throw new Error('Error al restablecer la contraseña')
+    }
   } catch (e) {
-    console.log("Error en el inicio de sesión:", e);
-    error.value = e.message; // Maneja el error
-  } finally {
-    loading.value = false;
+    error.value = e.message
   }
-};
+}
 </script>
 
-<!-- El resto de tu template se mantiene EXACTAMENTE igual -->
-
 <template>
+  
   <div class="min-h-screen bg-gray-900 flex items-center justify-center p-4">
     <div class="max-w-md w-full">
       <!-- Logo y título -->
@@ -41,13 +40,13 @@ const handleLogin = async () => {
         <div class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center">
           <span class="text-2xl font-bold text-emerald-500">V</span>
         </div>
-        <h2 class="text-3xl font-bold text-gray-200">Iniciar Sesión</h2>
-        <p class="text-gray-400 text-sm">Bienvenido de nuevo</p>
+        <h2 class="text-3xl font-bold text-gray-200">Restablecer Contraseña</h2>
+        <p class="text-gray-400 text-sm">Ingresa tu correo y nueva contraseña</p>
       </div>
 
       <!-- Formulario -->
       <div class="bg-gray-800/50 backdrop-blur-sm rounded-xl shadow-xl p-8">
-        <form @submit.prevent="handleLogin" class="space-y-6">
+        <form @submit.prevent="handleReset" class="space-y-6">
           <!-- Email -->
           <div class="space-y-2">
             <label class="block text-sm font-medium text-gray-300">
@@ -73,10 +72,10 @@ const handleLogin = async () => {
             </div>
           </div>
 
-          <!-- Password -->
+          <!-- Nueva Contraseña -->
           <div class="space-y-2">
             <label class="block text-sm font-medium text-gray-300">
-              Contraseña
+              Nueva Contraseña
             </label>
             <div class="relative">
               <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -86,7 +85,7 @@ const handleLogin = async () => {
                 </svg>
               </div>
               <input
-                v-model="password"
+                v-model="newPassword"
                 type="password"
                 required
                 class="block w-full pl-10 pr-3 py-2.5 border border-gray-600/50 rounded-lg 
@@ -109,39 +108,32 @@ const handleLogin = async () => {
             <span>{{ error }}</span>
           </div>
 
-          <!-- Login button -->
+          <!-- Reset button -->
           <button
             type="submit"
-            @click="login"
             class="w-full flex justify-center items-center py-2.5 px-4 
                    bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg 
                    font-medium shadow-lg hover:shadow-emerald-500/20 
                    focus:outline-none focus:ring-2 focus:ring-emerald-500 
                    transition duration-200"
           >
-          <span v-if="loading">Cargando...</span>
-            <span>Iniciar Sesión</span>
+            <span>Cambiar Contraseña</span>
           </button>
 
-          <!-- Register link -->
+          <!-- Back to login link -->
           <div class="text-center text-sm pt-2">
-            <span class="text-gray-400">¿No tienes cuenta?</span>
+            <span class="text-gray-400">¿Recordaste tu contraseña?</span>
             <router-link 
-              to="/register" 
+              to="/login" 
               class="ml-1.5 font-medium text-emerald-400 hover:text-emerald-300 
                      transition duration-200"
             >
-              Registrarse
+              Iniciar Sesión
             </router-link>
-            <router-link 
-  to="/reset-password" 
-  class="ml-1.5 font-medium text-emerald-400 hover:text-emerald-300"
->
-  ¿Olvidaste tu contraseña?
-</router-link>
           </div>
         </form>
       </div>
     </div>
   </div>
+
 </template>

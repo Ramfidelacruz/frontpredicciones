@@ -1,5 +1,5 @@
-import { defineStore } from 'pinia'
-import authService from '@/services/authService'
+import { defineStore } from 'pinia';
+import authService from '@/services/authService';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -8,24 +8,28 @@ export const useAuthStore = defineStore('auth', {
   }),
   getters: {
     isAuthenticated() {
-      return !!this.token
+      return !!this.token;
     }
   },
   actions: {
+    setToken(token) {
+      this.token = token; // Asigna el token al estado
+      localStorage.setItem('token', token); // Guarda el token en localStorage
+    },
     async login(email, password) {
       try {
-        const data = await authService.login(email, password)
-        this.token = data.access_token
-        return data
+        const data = await authService.login(email, password);
+        this.setToken(data.access_token); // Usa la nueva función setToken
+        return data;
       } catch (error) {
-        this.logout()
-        throw error
+        this.logout();
+        throw error;
       }
     },
     logout() {
-      localStorage.removeItem('token')
-      this.token = null
-      this.user = null
+      localStorage.removeItem('token');
+      this.token = null;
+      this.user = null;
     }
   }
-})
+});
