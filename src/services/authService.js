@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_URL = 'http://localhost:8000'
+const API_URL = 'https://predictions-production.up.railway.app'
 
 export default {
   async login(email, password) {

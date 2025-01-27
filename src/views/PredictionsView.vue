@@ -66,7 +66,7 @@
   
   onMounted(async () => {
     try {
-      const response = await axios.get('http://localhost:8000/teams/');
+      const teamsResponse = await axios.get(`${API_URL}/teams/`)
       teams.value = response.data; // Asegúrate de que esto sea un array de objetos
     } catch (error) {
       console.error('Error al cargar equipos:', error);
@@ -76,7 +76,7 @@
   const getProbabilities = async () => {
     if (selectedTeams.value.length > 0) {
       try {
-        const response = await axios.get(`http://localhost:8000/probabilities`, {
+        const response = await axios.get(`${API_URL}/probabilities`, {
           params: { teams: selectedTeams.value } // Asegúrate de que solo envíes los nombres
         });
         probabilities.value = response.data; // Asegúrate de que esto sea un array de objetos

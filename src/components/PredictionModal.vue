@@ -71,8 +71,7 @@
         away_score: awayScore.value
       }
   
-      const response = await axios.post('http://localhost:8000/predictions/', prediction)
-      
+      const response = await axios.post('https://predictions-production.up.railway.app/predictions/', prediction)      
       emit('prediction-saved', response.data)
       emit('close')
     } catch (error) {

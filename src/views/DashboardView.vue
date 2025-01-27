@@ -17,11 +17,11 @@ const prediction = ref(null)
 
 onMounted(async () => {
   try {
-    const teamsResponse = await axios.get('http://localhost:8000/teams/')
+    const teamsResponse = await axios.get(`${API_URL}/teams/`)
     console.log('Teams:', teamsResponse.data)
     teams.value = teamsResponse.data
 
-    const matchesResponse = await axios.get('http://localhost:8000/matches/upcoming')
+    const matchesResponse = await axios.get(`${API_URL}/matches/upcoming`)
     console.log('Matches:', matchesResponse.data)
     upcomingMatches.value = matchesResponse.data
   } catch (error) {
@@ -46,7 +46,7 @@ const sortedTeams = computed(() => {
 const getPrediction = async () => {
   if (selectedHomeTeam.value && selectedAwayTeam.value) {
     try {
-      const response = await axios.get(`http://localhost:8000/predict/${selectedHomeTeam.value}/${selectedAwayTeam.value}`);
+      const response = await axios.get(`${API_URL}/predict/${selectedHomeTeam.value}/${selectedAwayTeam.value}`);
       prediction.value = response.data; // Asegúrate de que esto esté correcto
       console.log('Predicción:', prediction.value); // Agrega un log para verificar la respuesta
     } catch (error) {
