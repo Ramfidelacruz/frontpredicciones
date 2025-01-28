@@ -1,12 +1,15 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useAuthStore } from '@/stores/authStore'
-import { useRouter } from 'vue-router' // Importa useRouter para redirigir
+import { useRouter } from 'vue-router'
 import axios from 'axios'
 import PredictionModal from '@/components/PredictionModal.vue'
 
+
+const API_URL = 'https://test-production-eb4d.up.railway.app'
+
 const authStore = useAuthStore()
-const router = useRouter() // Inicializa el router
+const router = useRouter()
 const teams = ref([])
 const upcomingMatches = ref([])
 const selectedMatch = ref(null)
@@ -15,17 +18,30 @@ const selectedHomeTeam = ref(null)
 const selectedAwayTeam = ref(null)
 const prediction = ref(null)
 
+
+const api = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Authorization': `Bearer ${localStorage.getItem('token')}`
+  }
+})
+
 onMounted(async () => {
   try {
-    const teamsResponse = await axios.get(`${API_URL}/teams/`)
+    const teamsResponse = await api.get('/teams/')
     console.log('Teams:', teamsResponse.data)
     teams.value = teamsResponse.data
 
-    const matchesResponse = await axios.get(`${API_URL}/matches/upcoming`)
+    const matchesResponse = await api.get('/matches/upcoming')
     console.log('Matches:', matchesResponse.data)
     upcomingMatches.value = matchesResponse.data
   } catch (error) {
     console.error('Error:', error)
+    if (error.response?.status === 401) {
+      // Si hay error de autenticación, redirigir al login
+      authStore.logout()
+      router.push('/login')
+    }
   }
 })
 
