@@ -1,11 +1,11 @@
 import axios from 'axios'
 
-const API_URL = 'https://test-production-eb4d.up.railway.app/'
+const API_URL = 'https://test-production-eb4d.up.railway.app'
 
 export default {
   async login(email, password) {
     try {
-      const response = await axios.post(`${API_URL}/token/`, { email, password })
+      const response = await axios.post(`${API_URL}/token`, { email, password })
       const { access_token } = response.data
       
       localStorage.setItem('token', access_token)
