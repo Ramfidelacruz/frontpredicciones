@@ -6,7 +6,7 @@ import axios from 'axios'
 import PredictionModal from '@/components/PredictionModal.vue'
 
 
-const API_URL = 'https://test-production-eb4d.up.railway.app'
+const API_URL = 'https://backendidk-production.up.railway.app'
 
 const authStore = useAuthStore()
 const router = useRouter()
