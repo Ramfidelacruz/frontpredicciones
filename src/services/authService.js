@@ -1,6 +1,7 @@
 import axios from 'axios'
 
-const API_URL = 'https://test-production-eb4d.up.railway.app'
+/* const API_URL = 'https://test-production-eb4d.up.railway.app' */
+const API_URL = 'https://backendidk-production.up.railway.app'
 
 export default {
   async login(email, password) {
